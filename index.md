@@ -1,37 +1,134 @@
-## Welcome to GitHub Pages
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sergiy Vasylyev - Research & Astrophotography</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-xl font-bold"></a>
+            <div class="space-x-4">
+                <a href="#about" class="hover:text-gray-300">About</a>
+                <a href="#research" class="hover:text-gray-300">Research</a>
+                <a href="#gallery" class="hover:text-gray-300">Gallery</a>
+                <a href="#contact" class="hover:text-gray-300">Contact</a>
+            </div>
+        </div>
+    </nav>
 
-You can use the [editor on GitHub](https://github.com/svasyly/svasyly.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+    <!-- Hero Section -->
+    <header class="bg-gray-900 text-white py-20">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl font-bold mb-4">Sergiy S. Vasylyev</h1>
+            <p class="text-xl">Ph.D. Candidate in Astrophysics | Astrophotographer</p>
+        </div>
+    </header>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+    <!-- About Section -->
+    <section id="about" class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-8 text-center">About Me</h2>
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-1/3">
+                    <img src="images/IMG_5047.jpg" alt="Profile Photo" class="rounded-full w-64 h-64 mx-auto object-cover">
+                </div>
+                <div class="md:w-2/3">
+                    <p class="text-lg mb-4">
+                        [Your introduction here - Include your academic background, research interests, and passion for astrophotography]
+                    </p>
+                    <p class="text-lg">
+                        [Additional details about your work and achievements]
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-### Markdown
+    <!-- Research Section -->
+    <section id="research" class="bg-gray-100 py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-8 text-center">Research</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold mb-4">Current Research</h3>
+                    <p class="mb-4">[Description of your current research project]</p>
+                    <ul class="list-disc list-inside">
+                        <li>Key finding or contribution 1</li>
+                        <li>Key finding or contribution 2</li>
+                        <li>Key finding or contribution 3</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold mb-4">Publications</h3>
+                    <ul class="space-y-4">
+                        <li>[Publication 1]</li>
+                        <li>[Publication 2]</li>
+                        <li>[Publication 3]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-8 text-center">Astrophotography Gallery</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Gallery Item 1 -->
+                <div class="space-y-2">
+                    <img src="/api/placeholder/400/300" alt="Astrophoto 1" class="w-full h-64 object-cover rounded">
+                    <h3 class="font-bold">Image Title</h3>
+                    <p class="text-sm text-gray-600">Technical details about the photo</p>
+                </div>
+                <!-- Gallery Item 2 -->
+                <div class="space-y-2">
+                    <img src="/api/placeholder/400/300" alt="Astrophoto 2" class="w-full h-64 object-cover rounded">
+                    <h3 class="font-bold">Image Title</h3>
+                    <p class="text-sm text-gray-600">Technical details about the photo</p>
+                </div>
+                <!-- Gallery Item 3 -->
+                <div class="space-y-2">
+                    <img src="/api/placeholder/400/300" alt="Astrophoto 3" class="w-full h-64 object-cover rounded">
+                    <h3 class="font-bold">Image Title</h3>
+                    <p class="text-sm text-gray-600">Technical details about the photo</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-```markdown
-Syntax highlighted code block
+    <!-- Contact Section -->
+    <section id="contact" class="bg-gray-100 py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-8 text-center">Contact</h2>
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <p class="text-center mb-4">
+                        Feel free to reach out for research collaborations or astrophotography discussions.
+                    </p>
+                    <div class="text-center space-y-2">
+                        <p>Email: sergiy_vasylyev@berkeley.edu</p>
+                        <p>Department of Astronomy</p>
+                        <p>University of California, Berkeley</p>
+                        <div class="flex justify-center space-x-4 mt-4">
+                            <a href="#" class="text-blue-600 hover:text-blue-800">LinkedIn</a>
+                            <a href="#" class="text-blue-600 hover:text-blue-800">GitHub</a>
+                            <a href="#" class="text-blue-600 hover:text-blue-800">Twitter</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/svasyly/svasyly.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Sergiy S. Vasylyev. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
