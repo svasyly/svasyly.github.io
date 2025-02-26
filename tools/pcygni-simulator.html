@@ -465,7 +465,7 @@
         async function calculateProfiles() {
             // Generate velocity grid
             const v_domain = getVelocityDomain();
-            const velocity_points = 200;
+            const velocity_points = 400;
             const velocities = Array.from({length: velocity_points}, (_, i) => 
                 v_domain[0] + (v_domain[1] - v_domain[0]) * i / (velocity_points - 1));
             
