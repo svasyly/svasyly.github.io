@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-Cygni Profile Simulator - Sergiy Vasylyev</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.2/plotly.min.js"></script>
+    <style>
+        .slider-container {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+        .slider-value {
+            font-weight: bold;
+            min-width: 4rem;
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="text-xl font-bold">Sergiy Vasylyev</a>
+            <div class="space-x-4">
+                <a href="../index.html#about" class="hover:text-gray-300">About</a>
+                <a href="../index.html#research" class="hover:text-gray-300">Research</a>
+                <a href="../index.html#gallery" class="hover:text-gray-300">Gallery</a>
+                <a href="../index.html#tools" class="hover:text-gray-300">Tools</a>
+                <a href="../index.html#contact" class="hover:text-gray-300">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-4xl font-bold mb-4">P-Cygni Profile Simulator</h1>
+            <p class="text-xl max-w-3xl mx-auto">
+                Interactive tool for simulating P-Cygni spectral line profiles in stellar atmospheres using the Sobolev approximation
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Controls and Plot Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Model Parameters -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Model Parameters</h2>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <label for="vph-slider">v<sub>ph</sub> (km/s):</label>
+                            <span id="vph-value" class="slider-value">10000</span>
+                        </div>
+                        <input type="range" id="vph-slider" min="0" max="30000" step="500" value="10000" class="w-full">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <label for="tau0-slider">τ₀:</label>
+                            <span id="tau0-value" class="slider-value">5</span>
+                        </div>
+                        <input type="range" id="tau0-slider" min="0" max="200" step="0.1" value="5" class="w-full">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <label for="n-tau-slider">τ(r) ∝ r<sup>(-n)</sup>:</label>
+                            <span id="n-tau-value" class="slider-value">8</span>
+                        </div>
+                        <input type="range" id="n-tau-slider" min="1" max="20" step="0.1" value="8" class="w-full">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="source-type" class="block mb-2">Source Function:</label>
+                        <select id="source-type" class="w-full p-2 border rounded">
+                            <option value="dilution">Resonance Scattering (W(r))</option>
+                            <option value="power">Power Law (r^(-n))</option>
+                        </select>
+                    </div>
+                    
+                    <div class="slider-container" id="n-source-container">
+                        <div class="slider-label">
+                            <label for="n-source-slider">S(r) ∝ r<sup>(-n)</sup>:</label>
+                            <span id="n-source-value" class="slider-value">2</span>
+                        </div>
+                        <input type="range" id="n-source-slider" min="0" max="6" step="0.1" value="2" class="w-full" disabled>
+                    </div>
+                </div>
+                
+                <!-- Display Settings -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Display Settings</h2>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <label for="rmax-slider">r<sub>max</sub>/r<sub>ph</sub>:</label>
+                            <span id="rmax-value" class="slider-value">5</span>
+                        </div>
+                        <input type="range" id="rmax-slider" min="2" max="10" step="0.5" value="5" class="w-full">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="show-inversion" class="form-checkbox">
+                            <span class="ml-2">Show τ(r) from inversion formula</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="fixed-y-axis" class="form-checkbox" checked>
+                            <span class="ml-2">Fixed Y-axis scale [0,1.2]</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="fixed-x-axis" class="form-checkbox" checked>
+                            <span class="ml-2">Fixed X-axis scale</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block mb-2">Velocity zoom:</label>
+                        <div class="flex space-x-2">
+                            <button id="zoom-full" class="px-3 py-1 border rounded bg-blue-100">Full</button>
+                            <button id="zoom-profile" class="px-3 py-1 border rounded bg-blue-500 text-white">Profile</button>
+                            <button id="zoom-feature" class="px-3 py-1 border rounded bg-blue-100">Feature</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Plot Controls and Info -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Information</h2>
+                    
+                    <div class="bg-blue-50 p-3 rounded-lg mb-4">
+                        <h3 class="font-bold text-blue-800 mb-2">Profile Regions</h3>
+                        <div class="flex items-center mb-2">
+                            <div class="w-4 h-4 bg-blue-200 mr-2"></div>
+                            <span>Blue Side (v ≤ -v<sub>ph</sub>)</span>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <div class="w-4 h-4 bg-blue-100 mr-2"></div>
+                            <span>Midregion (-v<sub>ph</sub> < v < 0)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 bg-red-200 mr-2"></div>
+                            <span>Red Side (v ≥ 0)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-3 rounded-lg">
+                        <h3 class="font-bold text-yellow-800 mb-2">Current Values</h3>
+                        <div id="current-values" class="text-sm space-y-1">
+                            <p>Photospheric velocity: <span id="info-vph">10000</span> km/s</p>
+                            <p>Optical depth (τ₀): <span id="info-tau0">5.0</span></p>
+                            <p>Optical depth power law: <span id="info-n-tau">8.0</span></p>
+                            <p>Source function: <span id="info-source-type">Dilution factor</span></p>
+                            <p id="info-n-source-container">Source function power law: <span id="info-n-source">2.0</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plots -->
+            <div class="mt-6 grid grid-cols-1 gap-6">
+                <div class="w-full bg-white border rounded-lg shadow-lg p-4">
+                    <h3 class="text-xl font-bold mb-2 text-center">P-Cygni Profile in Velocity Space</h3>
+                    <div id="pcygni-plot" class="w-full" style="height: 400px;"></div>
+                </div>
+                
+                <div class="w-full bg-white border rounded-lg shadow-lg p-4">
+                    <h3 class="text-xl font-bold mb-2 text-center">Physical Profiles</h3>
+                    <div id="physical-plot" class="w-full" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Theory Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-3xl font-bold mb-6 text-center">P-Cygni Profile Theory</h2>
+            
+            <div class="prose prose-lg max-w-none">
+                <p class="text-center text-gray-600 mb-6">
+                    Based on "A Complete Analytic Inversion of Supernova Lines in the Sobolev Approximation" 
+                    by Kasen et al. (2002, ApJ, 565, 380)
+                </p>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Key Equations:</h3>
+                <ul class="list-disc list-inside">
+                    <li>Optical depth: τ(r) = τ₀ (r/r<sub>ph</sub>)<sup>(-n)</sup></li>
+                    <li>Escape probability: f(r) = e<sup>(-τ(r))</sup></li>
+                    <li>Source function (resonance scattering): S(r) = I<sub>ph</sub> × W(r) = I<sub>ph</sub> × (1/2)[1-√(1-(r<sub>ph</sub>/r)²)]</li>
+                    <li>Source function (power law): S(r) = I<sub>ph</sub> × (r/r<sub>ph</sub>)<sup>(-n)</sup></li>
+                </ul>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Flux Equations from Kasen+2002:</h3>
+                <ul class="list-disc list-inside">
+                    <li>Red side (v ≥ 0): F(z)/(2π) = (1/2)r<sub>ph</sub>² + ∫ S(r)[1-f(r)]r dr</li>
+                    <li>Midregion (-v<sub>ph</sub> < v < 0): F(z)/(2π) = (1/2)p₀² + ∫ S(r)[1-f(r)]r dr + ∫ f(r)r dr</li>
+                    <li>Blue side (v ≤ -v<sub>ph</sub>): F(z)/(2π) = ∫ S(r)[1-f(r)]r dr + ∫ f(r)r dr</li>
+                </ul>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Key Inversion Formulas:</h3>
+                <ul class="list-disc list-inside">
+                    <li>Equation 7 (Midregion): f(r) = e<sup>(-τ(r))</sup> = 1 - (1/(2|z|))(df/dz)</li>
+                    <li>Equation 9 (Red side): S(r) = -(r<sub>ph</sub>²/(1-f(r)))(1/(2z))(df/dz)</li>
+                    <li>Equation 13 (Blue side): Extension of τ(r) to larger radii</li>
+                </ul>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Key Regions of the P-Cygni Profile:</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">Blue Side (v ≤ -v<sub>ph</sub>)</h4>
+                        <p class="mb-2">Pure absorption at velocities higher than the photospheric velocity.</p>
+                        <p>The blue edge of the profile contains information about both the optical depth and source function at large radii.</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">Midregion (-v<sub>ph</sub> < v < 0)</h4>
+                        <p class="mb-2">This region directly reveals the optical depth near the photosphere.</p>
+                        <p>The steepness of this region is directly proportional to the optical depth - steeper transitions indicate higher opacity.</p>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">Red Side (v ≥ 0)</h4>
+                        <p class="mb-2">Pure emission component from scattered photons.</p>
+                        <p>The shape of this region depends on both optical depth and source function.</p>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Conclusions from the Paper:</h3>
+                <ul class="list-disc list-inside">
+                    <li>The midregion slope directly indicates the optical depth near the photosphere - this is independent of the source function.</li>
+                    <li>In the Sobolev approximation, the midregion must always increase (or remain flat) toward the red side.</li>
+                    <li>Emission features cannot peak blueward of the rest wavelength under these assumptions.</li>
+                    <li>If observed profiles violate these constraints, it indicates that one or more assumptions are invalid, such as:
+                        <ul class="list-disc list-inside ml-6 mt-2">
+                            <li>Continuous opacity may be important</li>
+                            <li>The atmosphere may not be spherically symmetric</li>
+                            <li>Line blending may be occurring</li>
+                            <li>Relativistic effects may be significant at high velocities</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Sergiy S. Vasylyev. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Model parameters
+        let tau0 = 5.0;
+        let n_tau = 8.0;
+        let vph = 10000.0;
+        let source_type = "dilution";
+        let n_source = 2.0;
+        let rmax = 5.0;
+        let show_inversion = false;
+        let fixed_y_axis = true;
+        let fixed_x_axis = true;
+        let velocity_zoom = "profile";
+
+        // DOM Elements
+        const tau0Slider = document.getElementById('tau0-slider');
+        const tau0Value = document.getElementById('tau0-value');
+        const nTauSlider = document.getElementById('n-tau-slider');
+        const nTauValue = document.getElementById('n-tau-value');
+        const vphSlider = document.getElementById('vph-slider');
+        const vphValue = document.getElementById('vph-value');
+        const sourceTypeSelect = document.getElementById('source-type');
+        const nSourceSlider = document.getElementById('n-source-slider');
+        const nSourceValue = document.getElementById('n-source-value');
+        const nSourceContainer = document.getElementById('n-source-container');
+        const rmaxSlider = document.getElementById('rmax-slider');
+        const rmaxValue = document.getElementById('rmax-value');
+        const showInversionCheckbox = document.getElementById('show-inversion');
+        const fixedYAxisCheckbox = document.getElementById('fixed-y-axis');
+        const fixedXAxisCheckbox = document.getElementById('fixed-x-axis');
+        const zoomFullButton = document.getElementById('zoom-full');
+        const zoomProfileButton = document.getElementById('zoom-profile');
+        const zoomFeatureButton = document.getElementById('zoom-feature');
+
+        // Info display elements
+        const infoVph = document.getElementById('info-vph');
+        const infoTau0 = document.getElementById('info-tau0');
+        const infoNTau = document.getElementById('info-n-tau');
+        const infoSourceType = document.getElementById('info-source-type');
+        const infoNSource = document.getElementById('info-n-source');
+        const infoNSourceContainer = document.getElementById('info-n-source-container');
+
+        // Calculation functions
+        function opticalDepth(r) {
+            if (r < 1) {
+                return tau0;
+            }
+            return tau0 * Math.pow(r, -n_tau);
+        }
+
+        function escapeProb(r) {
+            return Math.exp(-opticalDepth(r));
+        }
+
+        function dilutionFactor(r) {
+            if (r <= 1) {
+                return 0.5;
+            }
+            return 0.5 * (1 - Math.sqrt(1 - 1/(r*r)));
+        }
+
+        function sourceFunction(r) {
+            if (r < 1) {
+                return 1.0;
+            }
+            
+            if (source_type === "dilution") {
+                return dilutionFactor(r);
+            } else {
+                return Math.pow(r, -n_source);
+            }
+        }
+
+        // Improved Gaussian smoothing function for blue side
+        function gaussianSmooth(data, windowSize = 5, sigma = 1.0) {
+            // Only process if we have enough data points
+            if (data.length < windowSize) return data;
+            
+            const result = [...data]; // Create a copy of the original data
+            const halfWindow = Math.floor(windowSize / 2);
+            
+            // Create Gaussian kernel
+            const kernel = [];
+            let kernelSum = 0;
+            for (let i = -halfWindow; i <= halfWindow; i++) {
+                const weight = Math.exp(-(i*i) / (2 * sigma * sigma));
+                kernel.push(weight);
+                kernelSum += weight;
+            }
+            
+            // Normalize kernel
+            for (let i = 0; i < kernel.length; i++) {
+                kernel[i] /= kernelSum;
+            }
+            
+            // Apply smoothing (skip edges)
+            for (let i = halfWindow; i < data.length - halfWindow; i++) {
+                let smoothed = 0;
+                for (let j = -halfWindow; j <= halfWindow; j++) {
+                    smoothed += data[i + j] * kernel[j + halfWindow];
+                }
+                result[i] = smoothed;
+            }
+            
+            return result;
+        }
+
+        function calculateFlux(velocity) {
+            // Convert to normalized z-coordinate
+            const z = velocity / vph;
+            
+            if (z >= 0) {
+                // Red side
+                // Photospheric contribution (normalized)
+                let flux = 0.5;
+                
+                // Source term: integrate from √(1+z²) to rmax
+                const r_min = Math.sqrt(1 + z*z);
+                
+                // Integration using finer step size
+                const stepSize = 0.002;
+                let source_term = 0;
+                
+                for (let r = r_min; r <= rmax; r += stepSize) {
+                    const integrand = sourceFunction(r) * (1 - escapeProb(r)) * r;
+                    source_term += integrand * stepSize;
+                }
+                
+                flux += source_term;
+                
+                // Normalize to continuum level (0.5)
+                return flux / 0.5;
+            } 
+            else if (z > -1) {
+                // Midregion
+                // Calculate p₀² = 1 - z²
+                const p0_squared = 1 - z*z;
+                
+                // Direct photospheric contribution
+                let flux = 0.5 * p0_squared;
+                
+                // Source term: integrate from √(z²+1) to rmax
+                const r_min = Math.sqrt(z*z + 1);
+                
+                // Integration using finer step size
+                const stepSize = 0.002;
+                let source_term = 0;
+                
+                for (let r = r_min; r <= rmax; r += stepSize) {
+                    const integrand = sourceFunction(r) * (1 - escapeProb(r)) * r;
+                    source_term += integrand * stepSize;
+                }
+                
+                flux += source_term;
+                
+                // Absorption term: integrate from 1 to √(z²+1)
+                let absorption_term = 0;
+                
+                for (let r = 1; r <= r_min; r += stepSize) {
+                    const integrand = escapeProb(r) * r;
+                    absorption_term += integrand * stepSize;
+                }
+                
+                flux += absorption_term;
+                
+                // Normalize to continuum level (0.5)
+                return flux / 0.5;
+            } 
+            else {
+                // Blue side
+                const abs_z = Math.abs(z);
+                
+                // Calculate r_min consistently with midregion
+                const r_min = Math.sqrt(z*z + 1);
+                let flux = 0;
+                
+                // Use finer step size for better accuracy
+                const stepSize = 0.002;
+                
+                // Source term
+                let source_term = 0;
+                
+                for (let r = r_min; r <= rmax; r += stepSize) {
+                    const integrand = sourceFunction(r) * (1 - escapeProb(r)) * r;
+                    source_term += integrand * stepSize;
+                }
+                
+                flux += source_term;
+                
+                // Handle region between abs_z and r_min
+                if (abs_z < r_min) {
+                    let absorption_term = 0;
+                    
+                    for (let r = abs_z; r <= r_min; r += stepSize) {
+                        const integrand = escapeProb(r) * r;
+                        absorption_term += integrand * stepSize;
+                    }
+                    
+                    flux += absorption_term;
+                }
+                
+                // Normalize to continuum level (0.5)
+                return flux / 0.5;
+            }
+        }
+
+        function getVelocityDomain() {
+            if (fixed_x_axis) {
+                // Use fixed values that don't depend on vph
+                if (velocity_zoom === "full") {
+                    return [-30000, 30000];
+                } else if (velocity_zoom === "profile") {
+                    return [-20000, 15000];
+                } else if (velocity_zoom === "feature") {
+                    return [-15000, 10000];
+                } else {
+                    return [-30000, 30000];
+                }
+            } else {
+                // Scale with vph
+                if (velocity_zoom === "full") {
+                    return [-3 * vph, 3 * vph];
+                } else if (velocity_zoom === "profile") {
+                    return [-2 * vph, 1.5 * vph];
+                } else if (velocity_zoom === "feature") {
+                    return [-1.5 * vph, 1 * vph];
+                } else {
+                    return [-3 * vph, 3 * vph];
+                }
+            }
+        }
+        
+        function calculateProfiles() {
+            // Generate velocity grid with many more points
+            const v_domain = getVelocityDomain();
+            
+            // Create velocity arrays for different regions with different densities
+            const bluePoints = 400;  // More points in the blue side
+            const midPoints = 200;   // Good number for midregion
+            const redPoints = 100;   // Fewer points needed for red region
+            
+            // Blue velocities (from domain min to -vph)
+            const blueVelocities = [];
+            for (let i = 0; i < bluePoints; i++) {
+                const v = v_domain[0] + ((-vph) - v_domain[0]) * i / (bluePoints - 1);
+                blueVelocities.push(v);
+            }
+            
+            // Mid velocities (from -vph to 0)
+            const midVelocities = [];
+            for (let i = 0; i < midPoints; i++) {
+                const v = -vph + vph * i / (midPoints - 1);
+                midVelocities.push(v);
+            }
+            
+            // Red velocities (from 0 to domain max)
+            const redVelocities = [];
+            for (let i = 0; i < redPoints; i++) {
+                const v = 0 + (v_domain[1] - 0) * i / (redPoints - 1);
+                redVelocities.push(v);
+            }
+            
+            // Combine all velocities and remove duplicates
+            let velocities = [...blueVelocities, ...midVelocities, ...redVelocities];
+            velocities = [...new Set(velocities)].sort((a, b) => a - b);
+            
+            // Calculate fluxes
+            let fluxes = [];
+            for (const v of velocities) {
+                fluxes.push(calculateFlux(v));
+            }
+            
+            // Apply smoothing only to the blue wing (< -vph) where the buzzsaw appears
+            const blueIndices = velocities.map((v, i) => v < -vph ? i : -1).filter(i => i >= 0);
+            if (blueIndices.length > 0) {
+                const blueFluxes = blueIndices.map(i => fluxes[i]);
+                const smoothedBlueFluxes = gaussianSmooth(blueFluxes, 11, 2.0);
+                
+                // Replace original values with smoothed ones
+                for (let i = 0; i < blueIndices.length; i++) {
+                    fluxes[blueIndices[i]] = smoothedBlueFluxes[i];
+                }
+            }
+            
+            // Store profile data
+            const line_profile = {
+                velocity: velocities,
+                flux: fluxes,
+                z: velocities.map(v => v / vph)
+            };
+            
+            // Calculate physical profiles
+            const r_points = 100;
+            const r_grid = Array.from({length: r_points}, (_, i) => 
+                1 + (rmax - 1) * i / (r_points - 1));
+            
+            const physical_profiles = {
+                r: r_grid,
+                tau: r_grid.map(r => Math.min(10, opticalDepth(r))),
+                source: r_grid.map(r => sourceFunction(r)),
+                escape: r_grid.map(r => escapeProb(r))
+            };
+            
+            // Calculate inversion profile if needed
+            let inversion_profile = null;
+            
+            if (show_inversion) {
+                // Only calculate for midregion where inversion formula applies
+                const midregion_velocities = velocities.filter(v => v < 0 && v > -vph);
+                
+                const inversion_r = [];
+                const inversion_tau = [];
+                
+                for (let i = 0; i < midregion_velocities.length; i++) {
+                    const velocity = midregion_velocities[i];
+                    const z = velocity / vph;
+                    const r = Math.sqrt(1 + z*z);
+                    
+                    // Find nearest indices for numerical derivative
+                    const idx = velocities.findIndex(v => v >= velocity);
+                    if (idx <= 1 || idx >= velocities.length - 1) continue;
+                    
+                    // Calculate flux derivative numerically
+                    const v1 = velocities[idx-1];
+                    const v2 = velocities[idx+1];
+                    const f1 = fluxes[idx-1];
+                    const f2 = fluxes[idx+1];
+                    const df_dv = (f2 - f1) / (v2 - v1);
+                    
+                    // Convert to df/dz
+                    const df_dz = df_dv * vph;
+                    
+                    // Calculate f(r) using equation 7
+                    const f_r = 1 - (1 / (2 * Math.abs(z))) * df_dz;
+                    
+                    // Calculate τ(r) = -ln(f(r))
+                    if (0.0001 <= f_r && f_r <= 0.9999) {
+                        const tau_r = -Math.log(f_r);
+                        inversion_r.push(r);
+                        inversion_tau.push(tau_r);
+                    }
+                }
+                
+                inversion_profile = {
+                    r: inversion_r,
+                    tau: inversion_tau
+                };
+            }
+            
+            return {
+                line_profile: line_profile,
+                physical_profiles: physical_profiles,
+                inversion_profile: inversion_profile
+            };
+        }
+
+        function updatePlots() {
+            // Calculate profiles
+            const profiles = calculateProfiles();
+            const v_domain = getVelocityDomain();
+            const flux_range = fixed_y_axis ? [0, 2.0] : [0, Math.max(...profiles.line_profile.flux) * 1.1];
+            
+            // P-Cygni Profile Plot
+            const pcygniPlotData = [
+                // Regions
+                {
+                    x: [v_domain[0], -vph, -vph, v_domain[0]],
+                    y: [flux_range[0], flux_range[0], flux_range[1], flux_range[1]],
+                    fill: 'toself',
+                    fillcolor: 'rgba(0, 0, 255, 0.1)',
+                    line: { width: 0 },
+                    showlegend: false,
+                    hoverinfo: 'none'
+                },
+                {
+                    x: [-vph, 0, 0, -vph],
+                    y: [flux_range[0], flux_range[0], flux_range[1], flux_range[1]],
+                    fill: 'toself',
+                    fillcolor: 'rgba(0, 0, 255, 0.05)',
+                    line: { width: 0 },
+                    showlegend: false,
+                    hoverinfo: 'none'
+                },
+                {
+                    x: [0, v_domain[1], v_domain[1], 0],
+                    y: [flux_range[0], flux_range[0], flux_range[1], flux_range[1]],
+                    fill: 'toself',
+                    fillcolor: 'rgba(255, 0, 0, 0.1)',
+                    line: { width: 0 },
+                    showlegend: false,
+                    hoverinfo: 'none'
+                },
+                // Reference lines
+                {
+                    x: [0, 0],
+                    y: flux_range,
+                    mode: 'lines',
+                    line: { color: 'gray', dash: 'dash' },
+                    name: 'Rest λ'
+                },
+                {
+                    x: [-vph, -vph],
+                    y: flux_range,
+                    mode: 'lines',
+                    line: { color: 'blue', dash: 'dash' },
+                    name: 'v_ph'
+                },
+                {
+                    x: v_domain,
+                    y: [1, 1],
+                    mode: 'lines',
+                    line: { color: 'gray', dash: 'dash' },
+                    name: 'Continuum'
+                },
+                // P-Cygni profile
+                {
+                    x: profiles.line_profile.velocity,
+                    y: profiles.line_profile.flux,
+                    mode: 'lines',
+                    line: { color: 'purple', width: 3 },
+                    name: 'P-Cygni Profile'
+                }
+            ];
+            
+            const pcygniLayout = {
+                xaxis: {
+                    title: {
+                        text: 'Velocity (km/s)',
+                        font: { size: 14, color: '#444' }
+                    },
+                    range: v_domain
+                },
+                yaxis: {
+                    title: {
+                        text: 'Relative Flux',
+                        font: { size: 14, color: '#444' }
+                    },
+                    range: flux_range
+                },
+                margin: { t: 10, r: 10, b: 50, l: 60 },
+                showlegend: true,
+                legend: { x: 0.7, y: 0.1 },
+                annotations: [
+                    {
+                        x: (v_domain[0] + (-vph))/2,
+                        y: flux_range[1] * 0.95,
+                        text: 'Blue Side',
+                        showarrow: false,
+                        font: { size: 12, color: '#444' }
+                    },
+                    {
+                        x: -vph/2,
+                        y: flux_range[1] * 0.95,
+                        text: 'Midregion',
+                        showarrow: false,
+                        font: { size: 12, color: '#444' }
+                    },
+                    {
+                        x: v_domain[1]/4,
+                        y: flux_range[1] * 0.95,
+                        text: 'Red Side',
+                        showarrow: false,
+                        font: { size: 12, color: '#444' }
+                    }
+                ]
+            };
+            
+            Plotly.newPlot('pcygni-plot', pcygniPlotData, pcygniLayout, {responsive: true});
+            
+            // Physical Profiles Plot
+            const physicalPlotData = [
+                // Optical depth
+                {
+                    x: profiles.physical_profiles.r,
+                    y: profiles.physical_profiles.tau,
+                    mode: 'lines',
+                    line: { color: 'red', width: 3 },
+                    name: 'Optical Depth τ(r)'
+                },
+                // Source function
+                {
+                    x: profiles.physical_profiles.r,
+                    y: profiles.physical_profiles.source,
+                    mode: 'lines',
+                    line: { color: 'blue', width: 3 },
+                    name: 'Source Function S(r)/I_ph'
+                },
+                // Escape probability
+                {
+                    x: profiles.physical_profiles.r,
+                    y: profiles.physical_profiles.escape,
+                    mode: 'lines',
+                    line: { color: 'green', width: 3 },
+                    name: 'Escape Probability f(r)'
+                }
+            ];
+            
+            // Add inversion profile if available
+            if (profiles.inversion_profile) {
+                physicalPlotData.push({
+                    x: profiles.inversion_profile.r,
+                    y: profiles.inversion_profile.tau,
+                    mode: 'markers',
+                    marker: {
+                        color: 'purple',
+                        size: 8
+                    },
+                    name: 'τ(r) from Inversion'
+                });
+            }
+            
+            const physicalLayout = {
+                xaxis: {
+                    title: {
+                        text: 'Radius (r/r_ph)',
+                        font: { size: 14, color: '#444' }
+                    },
+                    range: [1, rmax]
+                },
+                yaxis: {
+                    title: {
+                        text: 'Value',
+                        font: { size: 14, color: '#444' }
+                    },
+                    range: [0, 10]
+                },
+                margin: { t: 10, r: 10, b: 50, l: 60 },
+                showlegend: true,
+                legend: { x: 0.7, y: 1 }
+            };
+            
+            Plotly.newPlot('physical-plot', physicalPlotData, physicalLayout, {responsive: true});
+        }
+
+        // Event listeners for UI controls
+        tau0Slider.addEventListener('input', (e) => {
+            tau0 = parseFloat(e.target.value);
+            tau0Value.textContent = tau0;
+            infoTau0.textContent = tau0.toFixed(1);
+            updatePlots();
+        });
+
+        nTauSlider.addEventListener('input', (e) => {
+            n_tau = parseFloat(e.target.value);
+            nTauValue.textContent = n_tau;
+            infoNTau.textContent = n_tau.toFixed(1);
+            updatePlots();
+        });
+
+        vphSlider.addEventListener('input', (e) => {
+            vph = parseFloat(e.target.value);
+            vphValue.textContent = vph;
+            infoVph.textContent = vph;
+            updatePlots();
+        });
+
+        sourceTypeSelect.addEventListener('change', (e) => {
+            source_type = e.target.value;
+            nSourceSlider.disabled = (source_type !== 'power');
+            infoSourceType.textContent = (source_type === 'dilution') ? 'Dilution factor' : 'Power law';
+            infoNSourceContainer.style.display = (source_type === 'power') ? 'block' : 'none';
+            updatePlots();
+        });
+
+        nSourceSlider.addEventListener('input', (e) => {
+            n_source = parseFloat(e.target.value);
+            nSourceValue.textContent = n_source;
+            infoNSource.textContent = n_source.toFixed(1);
+            updatePlots();
+        });
+
+        rmaxSlider.addEventListener('input', (e) => {
+            rmax = parseFloat(e.target.value);
+            rmaxValue.textContent = rmax;
+            updatePlots();
+        });
+
+        showInversionCheckbox.addEventListener('change', (e) => {
+            show_inversion = e.target.checked;
+            updatePlots();
+        });
+
+        fixedYAxisCheckbox.addEventListener('change', (e) => {
+            fixed_y_axis = e.target.checked;
+            updatePlots();
+        });
+
+        fixedXAxisCheckbox.addEventListener('change', (e) => {
+            fixed_x_axis = e.target.checked;
+            updatePlots();
+        });
+
+        zoomFullButton.addEventListener('click', () => {
+            setZoomMode('full');
+        });
+
+        zoomProfileButton.addEventListener('click', () => {
+            setZoomMode('profile');
+        });
+
+        zoomFeatureButton.addEventListener('click', () => {
+            setZoomMode('feature');
+        });
+
+        function setZoomMode(mode) {
+            velocity_zoom = mode;
+            
+            // Update button styling
+            zoomFullButton.className = 'px-3 py-1 border rounded ' + 
+                (mode === 'full' ? 'bg-blue-500 text-white' : 'bg-blue-100');
+            zoomProfileButton.className = 'px-3 py-1 border rounded ' + 
+                (mode === 'profile' ? 'bg-blue-500 text-white' : 'bg-blue-100');
+            zoomFeatureButton.className = 'px-3 py-1 border rounded ' + 
+                (mode === 'feature' ? 'bg-blue-500 text-white' : 'bg-blue-100');
+            
+            updatePlots();
+        }
+
+        // Initialize plots on page load
+        window.addEventListener('load', () => {
+            updatePlots();
+        });
+    </script>
+</body>
+</html>
