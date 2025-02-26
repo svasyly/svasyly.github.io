@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P-Cygni Profile Simulator - Sergiy Vasylyev</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Jupyter Notebook Embedding Resources -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="../index.html" class="text-xl font-bold">Sergiy Vasylyev</a>
+            <div class="space-x-4">
+                <a href="../index.html#about" class="hover:text-gray-300">About</a>
+                <a href="../index.html#research" class="hover:text-gray-300">Research</a>
+                <a href="../index.html#gallery" class="hover:text-gray-300">Gallery</a>
+                <a href="../index.html#tools" class="hover:text-gray-300">Tools</a>
+                <a href="../index.html#contact" class="hover:text-gray-300">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-4xl font-bold mb-4">P-Cygni Profile Simulator</h1>
+            <p class="text-xl max-w-3xl mx-auto">
+                Interactive tool for simulating P-Cygni spectral line profiles in stellar atmospheres using the Sobolev approximation
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-center">Interactive Notebook</h2>
+            
+            <div class="flex flex-col items-center space-y-6">
+                <!-- Instructions -->
+                <div class="max-w-3xl text-center bg-blue-50 p-4 rounded-lg">
+                    <p class="text-lg mb-2">You can interact with this Jupyter notebook in several ways:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <a href="#embedded-notebook" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 text-center">
+                            View Embedded Notebook Below
+                        </a>
+                        <a href="https://nbviewer.org/github/USERNAME/REPO/blob/main/pcygni_simulator.ipynb" target="_blank" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 text-center">
+                            View in NBViewer (Full Interactive)
+                        </a>
+                        <a href="https://colab.research.google.com/github/USERNAME/REPO/blob/main/pcygni_simulator.ipynb" target="_blank" class="bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700 text-center">
+                            Open in Google Colab
+                        </a>
+                        <a href="https://mybinder.org/v2/gh/USERNAME/REPO/main?filepath=pcygni_simulator.ipynb" target="_blank" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 text-center">
+                            Launch on Binder
+                        </a>
+                    </div>
+                </div>
+                
+                <p class="italic text-gray-600">Note: For full interactivity with widgets, please use the NBViewer, Colab, or Binder links above.</p>
+            </div>
+            
+            <div id="embedded-notebook" class="mt-8">
+                <!-- Static notebook preview with iframe to GitHub-rendered version -->
+                <iframe src="https://nbviewer.org/github/svasyly/svasyly.github.io/blob/main/pcygni_simulator.ipynb" 
+                        width="100%" height="800px" frameborder="0"></iframe>
+            </div>
+        </div>
+        
+        <!-- Theory Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-3xl font-bold mb-6 text-center">P-Cygni Profile Theory</h2>
+            
+            <div class="prose prose-lg max-w-none">
+                <p class="text-center text-gray-600 mb-6">
+                    Based on "A Complete Analytic Inversion of Supernova Lines in the Sobolev Approximation" 
+                    by Kasen et al. (2002, ApJ, 565, 380)
+                </p>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Key Equations:</h3>
+                <ul class="list-disc list-inside">
+                    <li>Optical depth: τ(r) = τ₀ (r/r<sub>ph</sub>)<sup>(-n)</sup></li>
+                    <li>Escape probability: f(r) = e<sup>(-τ(r))</sup></li>
+                    <li>Source function (resonance scattering): S(r) = I<sub>ph</sub> × W(r) = I<sub>ph</sub> × (1/2)[1-√(1-(r<sub>ph</sub>/r)²)]</li>
+                    <li>Source function (power law): S(r) = I<sub>ph</sub> × (r/r<sub>ph</sub>)<sup>(-n)</sup></li>
+                </ul>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Flux Equations from Kasen+2002:</h3>
+                <ul class="list-disc list-inside">
+                    <li>Red side (v ≥ 0): F(z)/(2π) = (1/2)r<sub>ph</sub>² + ∫ S(r)[1-f(r)]r dr</li>
+                    <li>Midregion (-v<sub>ph</sub> < v < 0): F(z)/(2π) = (1/2)p₀² + ∫ S(r)[1-f(r)]r dr + ∫ f(r)r dr</li>
+                    <li>Blue side (v ≤ -v<sub>ph</sub>): F(z)/(2π) = ∫ S(r)[1-f(r)]r dr + ∫ f(r)r dr</li>
+                </ul>
+                
+                <h3 class="text-xl font-bold mt-6 mb-4">Key Regions of the P-Cygni Profile:</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">Blue Side (v ≤ -v<sub>ph</sub>)</h4>
+                        <p class="mb-2">Pure absorption at velocities higher than the photospheric velocity.</p>
+                        <p>The blue edge of the profile contains information about both the optical depth and source function at large radii.</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">Midregion (-v<sub>ph</sub> < v < 0)</h4>
+                        <p class="mb-2">This region directly reveals the optical depth near the photosphere.</p>
+                        <p>The steepness of this region is directly proportional to the optical depth - steeper transitions indicate higher opacity.</p>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">Red Side (v ≥ 0)</h4>
+                        <p class="mb-2">Pure emission component from scattered photons.</p>
+                        <p>The shape of this region depends on both optical depth and source function.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Sergiy S. Vasylyev. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
